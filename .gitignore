@@ -8,6 +8,9 @@
 *.so
 *.dylib
 
+# Build directory
+build/
+
 # Test binary, built with `go test -c`
 *.test
 
@@ -28,5 +31,8 @@ go.work.sum
 .env
 
 # Editor/IDE
-# .idea/
-# .vscode/
+.idea/
+.vscode/
+
+# Environment specific files
+infra/
