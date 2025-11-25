@@ -40,6 +40,14 @@ go.work.sum
 
 # Environment specific files
 infra/
+deployment/
 
 # Test data
 testdata/
+
+# Configs
+*.toml
+*.conf
+
+# Legacy make
+Makefile
