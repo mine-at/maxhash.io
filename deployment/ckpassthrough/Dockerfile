@@ -1,0 +1,37 @@
+# SPDX-FileCopyrightText: 2025 maxhash.io <dev@maxhash.io>
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+
+FROM debian:bookworm-slim AS build
+
+# Install build dependencies
+RUN apt-get update && \
+  apt-get install -y --no-install-recommends \
+  ca-certificates git build-essential yasm autoconf automake libtool pkg-config libcap2-bin \
+  && rm -rf /var/lib/apt/lists/*
+
+# Clone ckpool repository
+RUN git clone --depth 1 https://github.com/mine-at/ckpool.git /opt/ckpool
+
+# Set working directory
+WORKDIR /opt/ckpool
+
+# Build and install ckpool
+RUN ./autogen.sh && \
+  ./configure && \
+  make && \
+  make install
+
+FROM gcr.io/distroless/base-debian12:nonroot
+
+# Copy ckpool binary from build stage
+COPY --from=build /opt/ckpool/src/ckpool /usr/local/bin/ckpool
+
+# Copy the configuration file for ckpassthrough
+COPY ckpassthrough.conf /etc/ckpassthrough.conf
+
+# Expose the default port for ckpassthrough
+EXPOSE 3333/tcp
+
+# Set the entrypoint to run ckpassthrough
+ENTRYPOINT ["ckpool", "--loglevel", "5", "--passthrough", "--config", "/etc/ckpassthrough.conf"]
