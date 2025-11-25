@@ -1,0 +1,46 @@
+# SPDX-FileCopyrightText: 2025 maxhash.io <dev@maxhash.io>
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+
+version: "2"
+linters:
+  default: all
+  disable:
+    - depguard
+    - exhaustruct
+    - gochecknoglobals
+    - godox
+    - mnd
+    - nlreturn
+    - paralleltest
+    - revive
+    - tagliatelle
+    - varnamelen
+    - wsl
+    - noinlineerr
+    - err113
+    - wsl_v5
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - .github
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  new: false
+  fix: false
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - .github
