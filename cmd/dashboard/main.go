@@ -58,7 +58,9 @@ func main() {
 
 	eg, ctx := errgroup.WithContext(context.Background())
 
-	eg.Go(svr.ListenAndServe)
+	eg.Go(func() error {
+		return svr.ListenAndServe()
+	})
 
 	eg.Go(func() error {
 		ctx, cancel := signal.NotifyContext(ctx, stdlib_os.Interrupt, syscall.SIGTERM)
@@ -75,8 +77,11 @@ func main() {
 	slog.Info("HTTP server listening", "addr", viper.GetString("http.addr"))
 
 	if err := eg.Wait(); err != nil && !strings.Contains(err.Error(), "received signal") {
+		slog.Error("HTTP server error", "err", err)
 		code = 1
 	}
+
+	slog.Info("HTTP server shutdown")
 }
 
 func initConfig() error {
@@ -93,6 +98,8 @@ func initConfig() error {
 	viper.SetDefault("log_level", "info")
 	viper.SetDefault("http.addr", "[::]:8080")
 	viper.SetDefault("ckpool.log_dir", "/var/log/ckpool")
+	viper.SetDefault("http.cache.enabled", true)
+	viper.SetDefault("http.cache.ttl", time.Minute)
 	viper.SetDefault("ckpool.http.proxy.enabled", false)
 	viper.SetDefault("ckpool.http.proxy.target_host_url", "http://main.maxhash.io:8080")
 

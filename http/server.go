@@ -118,6 +118,7 @@ func (s *Server) ListenAndServe() error {
 	s.engine = engine
 
 	s.httpSrv = &http.Server{
+		Addr:           viper.GetString("http.addr"),
 		Handler:        engine,
 		ReadTimeout:    15 * time.Second,
 		WriteTimeout:   15 * time.Second,
@@ -125,7 +126,7 @@ func (s *Server) ListenAndServe() error {
 		MaxHeaderBytes: http.DefaultMaxHeaderBytes,
 	}
 
-	return s.httpSrv.ListenAndServe() //nolint: wrapcheck
+	return s.httpSrv.ListenAndServe()
 }
 
 // GracefulShutdown will gracefully shutdown the server.

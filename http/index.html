@@ -33,7 +33,7 @@ SPDX-License-Identifier: AGPL-3.0-only
   <body>
     <header class="container">
       <hgroup>
-        <h1><a href="/">maxhash.io</a></h1>
+        <h1><a href="/">maxhash.io (beta)</a></h1>
         <p>A high performance Bitcoin solo mining pool</p>
       </hgroup>
       <nav>
@@ -54,7 +54,10 @@ SPDX-License-Identifier: AGPL-3.0-only
             <strong>🪨 Reliable:</strong> Designed for high uptime with multi-region deployment and automatic failover.
           </li>
           <li><strong>👻 Private:</strong> No registration required; minimal data retention.</li>
-          <li><strong>🌐 Transparent:</strong> 100% open source under the GNU AGPL v3 license.</li>
+          <li>
+            <strong>🌐 Transparent:</strong> 100% <a href="https://github.com/mine-at/maxhash.io">open source</a> under
+            the GNU AGPL v3 license.
+          </li>
           <li>
             <strong>💚 Supports Open Source:</strong> A portion of pool fees funds upstream and related open source
             projects.
@@ -64,6 +67,21 @@ SPDX-License-Identifier: AGPL-3.0-only
 
       <section>
         <h2>Configuration</h2>
+
+        <aside
+          role="status"
+          aria-live="polite"
+          style="
+            border-left: 4px solid orange;
+            padding: 1em;
+            background: var(--pico-background-color, #fffbe6);
+            margin-bottom: 1.5em;
+          "
+        >
+          <strong>Notice:</strong> maxhash.io is currently in <mark>BETA</mark>. The service may be unstable and is
+          actively undergoing changes. Expect occasional downtime or updates. Your
+          <a href="https://github.com/mine-at/maxhash.io/issues">feedback</a> is welcome!
+        </aside>
 
         <p>Connect your miner to the following address:</p>
 
@@ -137,9 +155,8 @@ SPDX-License-Identifier: AGPL-3.0-only
             </p>
 
             <ul>
-              <li>1.0% - Hosting and Development Team</li>
+              <li>1.5% - Hosting, Development, Open Source Initiatives</li>
               <li>0.5% - ckpool Development Team</li>
-              <li>0.5% - Open Source Projects and Initiatives</li>
             </ul>
 
             <p>
@@ -243,7 +260,6 @@ SPDX-License-Identifier: AGPL-3.0-only
             <tr><th>SPS (15m)</th><td>${stats.sps15m}</td></tr>
             <tr><th>SPS (1h)</th><td>${stats.sps1h}</td></tr>
             <tr><th>Last Update</th><td>${new Date(stats.lastupdate * 1000).toLocaleString()}</td></tr>
-            <tr><th>Runtime (s)</th><td>${stats.runtime}</td></tr>
           </tbody>
         </table>
           `;

@@ -64,7 +64,6 @@ func (s *StatsService) PoolStats() (maxhash.PoolStats, error) {
 	}
 
 	return maxhash.PoolStats{
-		Runtime:      l1.Runtime,
 		LastUpdate:   l1.LastUpdate,
 		Users:        l1.Users,
 		Workers:      l1.Workers,
