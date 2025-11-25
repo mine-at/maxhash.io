@@ -1,0 +1,285 @@
+<!--
+SPDX-FileCopyrightText: 2025 maxhash.io <dev@maxhash.io>
+
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2.1.1/css/pico.min.css" />
+    <title>maxhash.io - Bitcoin Solo Mining Pool</title>
+    <meta
+      name="description"
+      content="maxhash.io is a high performance Bitcoin solo mining pool offering fast block propagation, low latency, privacy, and open source transparency. Mine Bitcoin anonymously with maxhash.io and support open source development."
+    />
+    <meta
+      name="keywords"
+      content="Bitcoin mining pool, solo mining, maxhash.io, fast block propagation, anonymous mining, open source, ckpool, mining statistics, low latency, mining configuration"
+    />
+    <meta property="og:title" content="maxhash.io - High Performance Bitcoin Solo Mining Pool" />
+    <meta
+      property="og:description"
+      content="Mine Bitcoin solo with maxhash.io. Fast, reliable, private, and open source. No registration required."
+    />
+    <meta property="og:url" content="https://maxhash.io/" />
+    <meta property="og:type" content="website" />
+
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="container">
+      <hgroup>
+        <h1><a href="/">maxhash.io</a></h1>
+        <p>A high performance Bitcoin solo mining pool</p>
+      </hgroup>
+      <nav>
+        <ul>
+          <li><a href="https://status.maxhash.io">Status</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main class="container">
+      <section>
+        <h2>Why maxhash.io?</h2>
+        <ul>
+          <li>
+            <strong>⚡ Fast:</strong> Low latency servers, rapid block propagation, and optimized mining infrastructure.
+          </li>
+          <li>
+            <strong>🪨 Reliable:</strong> Designed for high uptime with multi-region deployment and automatic failover.
+          </li>
+          <li><strong>👻 Private:</strong> No registration required; minimal data retention.</li>
+          <li><strong>🌐 Transparent:</strong> 100% open source under the GNU AGPL v3 license.</li>
+          <li>
+            <strong>💚 Supports Open Source:</strong> A portion of pool fees funds upstream and related open source
+            projects.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Configuration</h2>
+
+        <p>Connect your miner to the following address:</p>
+
+        <form>
+          <fieldset role="group">
+            <input type="text" id="address" value="stratum+tcp://solo.maxhash.io:3333" readonly />
+            <button type="button" id="copy-address-btn" aria-label="Copy address">Copy</button>
+          </fieldset>
+        </form>
+
+        <label for="username">Username (replace with your Bitcoin address):</label>
+        <input
+          type="text"
+          id="username-config"
+          value="bc1pd5zyzu4cgdw0270ykue34dfpy8ezuc0laannduy33vlvz66ss2tqqcyzqx"
+          readonly
+        />
+
+        <label for="password">Password:</label>
+        <input type="text" id="password" value="x" readonly />
+
+        <label for="fee">Fee:</label>
+        <input type="text" id="fee" value="2% of the block reward" readonly disabled />
+      </section>
+
+      <section>
+        <h2>View your statistics</h2>
+
+        <form id="user-search-form">
+          <label for="username">Enter your Bitcoin mining address:</label>
+          <input type="text" id="username" name="username" placeholder="bc1q..." required />
+          <button type="submit">View stats</button>
+        </form>
+      </section>
+
+      <section>
+        <h2>Pool statistics</h2>
+        <div id="pool-stats">
+          <span aria-busy="true">Loading pool statistics...</span>
+        </div>
+      </section>
+
+      <section>
+        <h2>FAQ</h2>
+
+        <details name="faq">
+          <summary>What is a Bitcoin solo mining pool?</summary>
+          <div>
+            <p>
+              A Bitcoin solo mining pool is a type of mining pool where miners work independently to find blocks and
+              earn rewards directly to their own wallets. Unlike traditional mining pools, where miners combine their
+              resources and share rewards, solo miners have full control over their mining efforts and receive the
+              entire block reward if they successfully mine a block.
+            </p>
+
+            <p>
+              Solo mining can be more rewarding for individual miners, but it also comes with higher risks and
+              variability in earnings. Miners must be prepared for the possibility of long periods without finding
+              blocks.
+            </p>
+          </div>
+        </details>
+
+        <details name="faq">
+          <summary>What is the pool fee?</summary>
+          <div>
+            <p>
+              The pool fee is <mark>2% of the block reward</mark>. This fee helps us cover operational costs and support
+              open source projects that benefit the Bitcoin community. The breakdown of the pool fee allocation is as
+              follows:
+            </p>
+
+            <ul>
+              <li>1.0% - Hosting and Development Team</li>
+              <li>0.5% - ckpool Development Team</li>
+              <li>0.5% - Open Source Projects and Initiatives</li>
+            </ul>
+
+            <p>
+              By mining with maxhash.io, you're not only contributing to the security of the Bitcoin network but also
+              supporting the development of open source software that powers the ecosystem.
+            </p>
+
+            <p>
+              Whenever possible, all pool fees and donations are held and distributed in Bitcoin. We prioritize working
+              with service providers and partners who accept Bitcoin, ensuring that your contributions directly support
+              the Bitcoin ecosystem.
+            </p>
+
+            <p>
+              <strong>Thank you for choosing maxhash.io as your mining pool!</strong>
+            </p>
+          </div>
+        </details>
+
+        <details name="faq">
+          <summary>What regions do you support?</summary>
+          <div>
+            <p>We currently support the North America region. More regions coming soon.</p>
+          </div>
+        </details>
+
+        <details name="faq">
+          <summary>What information do you collect?</summary>
+          <div>
+            <p>We're huge privacy advocates. We aim to minimize data collection and prioritize your anonymity.</p>
+
+            <p>However, in order to provide you a great service, we need to collect the following:</p>
+
+            <ul>
+              <li>
+                <strong>Mining address and worker names</strong>
+                <ul>
+                  <li>Used to provide you with mining statistics.</li>
+                  <li>Retained until you become inactive for 90 days, then deleted.</li>
+                </ul>
+              </li>
+              <li>
+                <strong>Miner IP address</strong>
+                <ul>
+                  <li>Used for security and anti-abuse purposes.</li>
+                  <li>Retained for 7 days, then deleted.</li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </details>
+
+        <details name="faq">
+          <summary>Do you accept donations?</summary>
+          <div>
+            <p>
+              Yes, maxhash.io accepts donations to support the development and maintenance of the mining pool. Our
+              address is listed below:
+            </p>
+
+            <ul>
+              <li><strong>Bitcoin (BTC):</strong> bc1pd5zyzu4cgdw0270ykue34dfpy8ezuc0laannduy33vlvz66ss2tqqcyzqx</li>
+            </ul>
+          </div>
+        </details>
+      </section>
+    </main>
+
+    <footer class="container">
+      <p>&copy; 2025 maxhash.io. All rights reserved.</p>
+    </footer>
+
+    <!-- Custom scripts -->
+    <script>
+      // Fetch and display pool statistics.
+      (async () => {
+        try {
+          const resp = await fetch("/v1/pool");
+          const stats = await resp.json();
+          const el = document.getElementById("pool-stats");
+          el.innerHTML = `
+        <table>
+          <tbody>
+            <tr><th>Users</th><td>${stats.users}</td></tr>
+            <tr><th>Workers</th><td>${stats.workers}</td></tr>
+            <tr><th>Idle</th><td>${stats.idle}</td></tr>
+            <tr><th>Disconnected</th><td>${stats.disconnected}</td></tr>
+            <tr><th>Hashrate (1m)</th><td>${stats.hashrate1m}</td></tr>
+            <tr><th>Hashrate (5m)</th><td>${stats.hashrate5m}</td></tr>
+            <tr><th>Hashrate (15m)</th><td>${stats.hashrate15m}</td></tr>
+            <tr><th>Hashrate (1hr)</th><td>${stats.hashrate1hr}</td></tr>
+            <tr><th>Hashrate (6hr)</th><td>${stats.hashrate6hr}</td></tr>
+            <tr><th>Hashrate (1d)</th><td>${stats.hashrate1d}</td></tr>
+            <tr><th>Hashrate (7d)</th><td>${stats.hashrate7d}</td></tr>
+            <tr><th>Accepted Shares</th><td>${stats.accepted}</td></tr>
+            <tr><th>Rejected Shares</th><td>${stats.rejected}</td></tr>
+            <tr><th>Best Share</th><td>${stats.bestshare}</td></tr>
+            <tr><th>Difficulty</th><td>${stats.diff}</td></tr>
+            <tr><th>SPS (1m)</th><td>${stats.sps1m}</td></tr>
+            <tr><th>SPS (5m)</th><td>${stats.sps5m}</td></tr>
+            <tr><th>SPS (15m)</th><td>${stats.sps15m}</td></tr>
+            <tr><th>SPS (1h)</th><td>${stats.sps1h}</td></tr>
+            <tr><th>Last Update</th><td>${new Date(stats.lastupdate * 1000).toLocaleString()}</td></tr>
+            <tr><th>Runtime (s)</th><td>${stats.runtime}</td></tr>
+          </tbody>
+        </table>
+          `;
+        } catch {
+          document.getElementById("pool-stats").innerHTML = "<em>Failed to load pool statistics.</em>";
+        }
+      })();
+
+      // Handle user search form submission.
+      document.getElementById("user-search-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const username = document.getElementById("username").value.trim();
+
+        // TODO: Validate Bitcoin address format.
+
+        if (username) {
+          window.location.href = "/users/" + encodeURIComponent(username);
+        }
+      });
+
+      // Handle copy address button.
+      document.getElementById("copy-address-btn").addEventListener("click", function () {
+        const addressInput = document.getElementById("address");
+
+        addressInput.select();
+        addressInput.setSelectionRange(0, 99999);
+
+        document.execCommand("copy");
+
+        this.textContent = "Copied!";
+
+        this.className = setTimeout(() => {
+          this.textContent = "Copy";
+        }, 1200);
+      });
+    </script>
+  </body>
+</html>
