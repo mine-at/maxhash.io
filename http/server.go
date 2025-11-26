@@ -11,9 +11,11 @@ import (
 	"fmt"
 	"io/fs"
 	"log/slog"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/btcsuite/btcutil"
@@ -22,6 +24,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mine-at/maxhash.io"
 	"github.com/spf13/viper"
+	"golang.org/x/time/rate"
 )
 
 //go:embed static/*
@@ -39,6 +42,7 @@ type Server struct {
 
 	engine  *gin.Engine
 	httpSrv *http.Server
+	limiter *rate.Limiter
 	store   persistence.CacheStore
 	proxy   *httputil.ReverseProxy
 }
@@ -47,6 +51,16 @@ type Server struct {
 func NewServer(statsSvc maxhash.StatsService) (*Server, error) {
 	svr := &Server{
 		StatsSvc: statsSvc,
+	}
+
+	// Setup rate limiter if enabled.
+	if viper.GetBool("http.rate_limiter.enabled") {
+		svr.limiter = rate.NewLimiter(
+			rate.Limit(viper.GetFloat64("http.rate_limiter.rps")),
+			viper.GetInt("http.rate_limiter.burst"),
+		)
+
+		slog.Debug("Rate limiter enabled ⏱️")
 	}
 
 	// Setup cache store if enabled.
@@ -73,8 +87,20 @@ func NewServer(statsSvc maxhash.StatsService) (*Server, error) {
 			return nil, fmt.Errorf("failed to parse target host URL: %w", err)
 		}
 
-		// TODO: Tune transport for performance/security.
+		// TODO: Make transport settings configurable via viper.
+		transport := &http.Transport{
+			MaxIdleConns:          1000,
+			MaxConnsPerHost:       100,
+			IdleConnTimeout:       time.Minute,
+			ExpectContinueTimeout: 0,
+			DialContext: (&net.Dialer{
+				Timeout:   5 * time.Second,
+				KeepAlive: 30 * time.Second,
+			}).DialContext,
+		}
+
 		svr.proxy = httputil.NewSingleHostReverseProxy(hostURL)
+		svr.proxy.Transport = transport
 
 		slog.Debug("Reverse proxy enabled ✈️", "target_host_url", targetHostURL)
 	}
@@ -84,7 +110,19 @@ func NewServer(statsSvc maxhash.StatsService) (*Server, error) {
 
 // ListenAndServe will listen and serve on the server address. Blocks until the server is stopped.
 func (s *Server) ListenAndServe() error {
-	engine := gin.Default()
+	gin.SetMode(gin.ReleaseMode)
+
+	// Enable debug mode if log_level is set to debug.
+	if strings.EqualFold(viper.GetString("log_level"), "debug") {
+		gin.SetMode(gin.DebugMode)
+	}
+
+	engine := gin.New()
+
+	// Apply rate limiter middleware if enabled.
+	if s.limiter != nil {
+		engine.Use(s.limitHandler)
+	}
 
 	// API group.
 	api := engine.Group("/v1")
@@ -120,9 +158,9 @@ func (s *Server) ListenAndServe() error {
 	s.httpSrv = &http.Server{
 		Addr:           viper.GetString("http.addr"),
 		Handler:        engine,
-		ReadTimeout:    15 * time.Second,
-		WriteTimeout:   15 * time.Second,
-		IdleTimeout:    60 * time.Second,
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   10 * time.Second,
+		IdleTimeout:    30 * time.Second,
 		MaxHeaderBytes: http.DefaultMaxHeaderBytes,
 	}
 
@@ -136,6 +174,16 @@ func (s *Server) GracefulShutdown(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func (s *Server) limitHandler(c *gin.Context) {
+	if s.limiter != nil && !s.limiter.Allow() {
+		c.String(http.StatusTooManyRequests, "Rate limit exceeded. Slow down! 🐢")
+		c.Abort()
+		return
+	}
+
+	c.Next()
 }
 
 func (s *Server) indexPageHandler(c *gin.Context) {

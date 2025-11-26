@@ -1,0 +1,13 @@
+# SPDX-FileCopyrightText: 2025 maxhash.io <dev@maxhash.io>
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+
+FROM gcr.io/distroless/static-debian12:nonroot
+
+COPY ./build/dashboard /dashboard
+
+COPY ./infra/dashboard.config.yaml /config.yaml
+
+EXPOSE 8080/tcp
+
+ENTRYPOINT ["/dashboard", "--config", "/config.yaml"]

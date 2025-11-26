@@ -51,12 +51,20 @@ fix-license-headers:
     RUN reuse annotate --copyright="maxhash.io <dev@maxhash.io>" --license="AGPL-3.0-only" --fallback-dot-license --skip-existing --recursive
 
 build:
-    FROM +deps-go
     COPY . .
-
     ENV GOOS=linux
     ENV GOARCH=amd64
     ENV CGO_ENABLED=0
     RUN go build -a -ldflags '-s -w -extldflags "-static"' -o build/dashboard ./cmd/dashboard/main.go
+    SAVE ARTIFACT --force build/dashboard AS LOCAL build/dashboard
 
-    SAVE ARTIFACT  build/dashboard
+deploy-dashboard-fly:
+    WAIT
+        BUILD +build
+    END
+    LOCALLY
+    RUN fly deploy --config infra/dashboard.fly.toml
+
+deploy-ckpassthrough-fly:
+    LOCALLY
+    RUN fly deploy --config infra/ckpassthrough.fly.toml

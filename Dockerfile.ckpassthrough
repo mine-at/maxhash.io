@@ -28,7 +28,7 @@ FROM gcr.io/distroless/base-debian12:nonroot
 COPY --from=build /opt/ckpool/src/ckpool /usr/local/bin/ckpool
 
 # Copy the configuration file for ckpassthrough
-COPY ckpassthrough.conf /etc/ckpassthrough.conf
+COPY ./infra/ckpassthrough.conf /etc/ckpassthrough.conf
 
 # Expose the default port for ckpassthrough
 EXPOSE 3333/tcp

@@ -45,6 +45,23 @@ SPDX-License-Identifier: AGPL-3.0-only
 
     <main class="container">
       <section>
+        <aside
+          role="status"
+          aria-live="polite"
+          style="
+            border-left: 4px solid orange;
+            padding: 1em;
+            background: var(--pico-background-color, #fffbe6);
+            margin-bottom: 1.5em;
+          "
+        >
+          <strong>Notice:</strong> maxhash.io is currently in <mark>BETA</mark>. The service may be unstable and is
+          actively undergoing changes. Expect occasional downtime or updates. Your
+          <a href="https://github.com/mine-at/maxhash.io/issues">feedback</a> is welcome!
+        </aside>
+      </section>
+
+      <section>
         <h2>Why maxhash.io?</h2>
         <ul>
           <li>
@@ -68,43 +85,29 @@ SPDX-License-Identifier: AGPL-3.0-only
       <section>
         <h2>Configuration</h2>
 
-        <aside
-          role="status"
-          aria-live="polite"
-          style="
-            border-left: 4px solid orange;
-            padding: 1em;
-            background: var(--pico-background-color, #fffbe6);
-            margin-bottom: 1.5em;
-          "
-        >
-          <strong>Notice:</strong> maxhash.io is currently in <mark>BETA</mark>. The service may be unstable and is
-          actively undergoing changes. Expect occasional downtime or updates. Your
-          <a href="https://github.com/mine-at/maxhash.io/issues">feedback</a> is welcome!
-        </aside>
-
-        <p>Connect your miner to the following address:</p>
+        <p>Connect your miner using the following configuration:</p>
 
         <form>
+          <label for="address">Address</label>
           <fieldset role="group">
             <input type="text" id="address" value="stratum+tcp://solo.maxhash.io:3333" readonly />
             <button type="button" id="copy-address-btn" aria-label="Copy address">Copy</button>
           </fieldset>
+
+          <label for="username-config">Username (replace with your Bitcoin address)</label>
+          <input
+            type="text"
+            id="username-config"
+            value="bc1pd5zyzu4cgdw0270ykue34dfpy8ezuc0laannduy33vlvz66ss2tqqcyzqx"
+            readonly
+          />
+
+          <label for="password">Password</label>
+          <input type="text" id="password" value="x" readonly />
+
+          <label for="fee">Fee</label>
+          <input type="text" id="fee" value="2% of the block reward" readonly disabled />
         </form>
-
-        <label for="username">Username (replace with your Bitcoin address):</label>
-        <input
-          type="text"
-          id="username-config"
-          value="bc1pd5zyzu4cgdw0270ykue34dfpy8ezuc0laannduy33vlvz66ss2tqqcyzqx"
-          readonly
-        />
-
-        <label for="password">Password:</label>
-        <input type="text" id="password" value="x" readonly />
-
-        <label for="fee">Fee:</label>
-        <input type="text" id="fee" value="2% of the block reward" readonly disabled />
       </section>
 
       <section>
@@ -199,9 +202,9 @@ SPDX-License-Identifier: AGPL-3.0-only
                 </ul>
               </li>
               <li>
-                <strong>Miner IP address</strong>
+                <strong>IP address</strong>
                 <ul>
-                  <li>Used for security and anti-abuse purposes.</li>
+                  <li>Used for security and anti-abuse purposes. Never used for tracking or profiling.</li>
                   <li>Retained for 7 days, then deleted.</li>
                 </ul>
               </li>
@@ -230,7 +233,7 @@ SPDX-License-Identifier: AGPL-3.0-only
     </footer>
 
     <!-- Custom scripts -->
-    <script>
+    <script defer>
       // Fetch and display pool statistics.
       (async () => {
         try {
