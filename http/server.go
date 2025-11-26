@@ -21,6 +21,7 @@ import (
 	"github.com/btcsuite/btcutil"
 	"github.com/gin-contrib/cache"
 	"github.com/gin-contrib/cache/persistence"
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/mine-at/maxhash.io"
 	"github.com/spf13/viper"
@@ -123,6 +124,10 @@ func (s *Server) ListenAndServe() error {
 	if s.limiter != nil {
 		engine.Use(s.limitHandler)
 	}
+
+	// Use gzip compression.
+	// TODO: Make compression level configurable via viper.
+	engine.Use(gzip.Gzip(gzip.DefaultCompression))
 
 	// API group.
 	api := engine.Group("/v1")
