@@ -50,6 +50,15 @@ fix-license-headers:
     LOCALLY
     RUN reuse annotate --copyright="maxhash.io <dev@maxhash.io>" --license="AGPL-3.0-only" --fallback-dot-license --skip-existing --recursive
 
+gen-static:
+    FROM rust:latest
+    ENV PATH=/root/.cargo/bin:$PATH
+    RUN cargo install minhtml
+    COPY http/ http/
+    RUN minhtml --minify-css --minify-js http/*.html http/*.css
+    SAVE ARTIFACT --force http/*.html AS LOCAL http/static/
+    SAVE ARTIFACT --force http/*.css AS LOCAL http/static/
+
 build:
     COPY . .
     ENV GOOS=linux

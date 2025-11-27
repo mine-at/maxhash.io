@@ -1,0 +1,53 @@
+<!doctype html><html lang=en><meta charset=utf-8><meta content="width=device-width,initial-scale=1" name=viewport><meta content="light dark" name=color-scheme><link href=https://cdn.jsdelivr.net/npm/@picocss/pico@2.1.1/css/pico.min.css rel=stylesheet><title>User Statistics | maxhash.io Bitcoin Mining Pool</title><meta content="View detailed Bitcoin mining statistics, hashrate, shares, and worker performance for your user account on maxhash.io." name=description><meta content="Bitcoin mining, mining pool, user statistics, hashrate, shares, workers, maxhash.io, solo mining" name=keywords><link href=https://maxhash.io/user rel=canonical><meta content="User Statistics | maxhash.io Bitcoin Mining Pool" property=og:title><meta content="Check your Bitcoin mining user statistics, hashrate, shares, and worker details on maxhash.io." property=og:description><meta content=website property=og:type><meta content=https://maxhash.io/user property=og:url><meta content=maxhash.io property=og:site_name><link href=/static/styles.css rel=stylesheet><body><header class=container><hgroup><h1><a href=/>maxhash.io (beta)</a></h1><p>A high performance Bitcoin solo mining pool</hgroup><nav><ul><li><a href=https://status.maxhash.io>Status</a></ul></nav></header><main class=container><section><h2>Summary</h2><div class=overflow-auto style=margin-top:.5em;margin-bottom:1em><span style=font-size:x-large;font-weight:700><code id=username></code></span></div><div id=user-stats><span aria-busy=true>Loading user statistics...</span></div></section><section><h2>Workers</h2><div class=overflow-auto id=worker-table><span aria-busy=true>Loading worker statistics...</span></div></section></main><footer class=container><p>© 2025 maxhash.io. All rights reserved.</footer><script>// Extract username from URL
+const pathParts=window.location.pathname.split(`/`),username=decodeURIComponent(pathParts[pathParts.length-1]);
+// Fetch and display user statistics
+document.getElementById(`username`).textContent=username,(async()=>{try{let resp=await fetch(`/v1/users/${encodeURIComponent(username)}`);if(!resp.ok)throw Error(`Failed to fetch user stats`);let stats=await resp.json();
+// Workers table
+document.getElementById(`user-stats`).innerHTML=`
+            <div class="grid">
+              <div><strong>Hashrate (1m)</strong><br>${stats.hashrate1m}</div>
+              <div><strong>Hashrate (5m)</strong><br>${stats.hashrate5m}</div>
+              <div><strong>Hashrate (1hr)</strong><br>${stats.hashrate1hr}</div>
+              <div><strong>Hashrate (1d)</strong><br>${stats.hashrate1d}</div>
+              <div><strong>Hashrate (7d)</strong><br>${stats.hashrate7d}</div>
+            </div>
+
+            <div class="grid">
+              <div><strong>Shares</strong><br>${stats.shares}</div>
+              <div><strong>Best Share</strong><br>${stats.bestshare?.toFixed(8)}</div>
+              <div><strong>Best Ever</strong><br>${stats.bestever}</div>
+              <div><strong>Last Share</strong><br>${stats.lastshare}</div>
+              <div><strong>Authorised</strong><br>${stats.authorised}</div>
+            </div>
+            `,stats.worker&&stats.worker.length>0?document.getElementById(`worker-table`).innerHTML=`
+              <table class="striped">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Hashrate (1m)</th>
+                    <th>Hashrate (5m)</th>
+                    <th>Hashrate (1hr)</th>
+                    <th>Hashrate (1d)</th>
+                    <th>Hashrate (7d)</th>
+                    <th>Shares</th>
+                    <th>Best Ever</th>
+                    <th>Last Share</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${stats.worker.map(w=>`
+                    <tr>
+                      <td><code>${w.workername}</code></td>
+                      <td>${w.hashrate1m}</td>
+                      <td>${w.hashrate5m}</td>
+                      <td>${w.hashrate1hr}</td>
+                      <td>${w.hashrate1d}</td>
+                      <td>${w.hashrate7d}</td>
+                      <td>${w.shares}</td>
+                      <td>${w.bestever}</td>
+                      <td>${w.lastshare}</td>
+                    </tr>
+                  `).join(``)}
+                </tbody>
+              </table>
+            `:document.getElementById(`worker-table`).innerHTML=`<em>No workers found.</em>`}catch{document.getElementById(`user-stats`).innerHTML=`<em>Failed to load user statistics.</em>`,document.getElementById(`worker-table`).innerHTML=`<em>Failed to load worker statistics.</em>`}})();</script>

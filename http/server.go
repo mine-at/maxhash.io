@@ -31,17 +31,10 @@ import (
 //go:embed static/*
 var staticFiles embed.FS
 
-//go:embed index.html
-var indexPageHTML string
-
-//go:embed user.html
-var userPageHTML string
-
 // Server wraps http.Server.
 type Server struct {
 	StatsSvc maxhash.StatsService
 
-	engine  *gin.Engine
 	httpSrv *http.Server
 	limiter *rate.Limiter
 	store   persistence.CacheStore
@@ -132,33 +125,49 @@ func (s *Server) ListenAndServe() error {
 	// API group.
 	api := engine.Group("/v1")
 	{
-		// Use site-wide cache if store is configured.
-		// Note: expire param is ignored since store was created with a default TTL.
+		// Use cache if store is configured.
 		if s.store != nil {
-			api.Use(cache.SiteCache(s.store, 0))
+			// Wrap each handler directly with CachePageAtomic.
+			api.GET("/pool", cache.CachePageAtomic(s.store, viper.GetDuration("http.cache.ttl"), s.poolStatusHandler))
+			api.GET("/users/:username", cache.CachePageAtomic(s.store, viper.GetDuration("http.cache.ttl"), s.userHandler))
 
 			slog.Debug("Site-wide caching enabled for API responses 🗄️")
+		} else {
+			api.GET("/pool", s.poolStatusHandler)
+			api.GET("/users/:username", s.userHandler)
 		}
-
-		api.GET("/pool", s.poolStatusHandler)
-		api.GET("/users/:username", s.userHandler)
 	}
 
-	// Serve static files.
+	// Serve static files under /static to avoid route conflicts.
 	staticFS, err := fs.Sub(staticFiles, "static")
 	if err != nil {
 		return fmt.Errorf("strip static prefix: %w", err)
 	}
+
+	// Serve other static assets.
 	engine.StaticFS("/static", http.FS(staticFS))
 
-	// Page group.
-	pages := engine.Group("/")
-	{
-		pages.GET("/users/:username", s.userPageHandler)
-		pages.GET("/", s.indexPageHandler)
-	}
+	// Serve user page.
+	engine.GET("/users/:username", func(c *gin.Context) {
+		data, err := fs.ReadFile(staticFS, "user.html")
+		if err != nil {
+			slog.Error("failed to load user.html", "error", err)
+			c.String(http.StatusInternalServerError, "failed to load user.html")
+			return
+		}
+		c.Data(http.StatusOK, "text/html; charset=utf-8", data)
+	})
 
-	s.engine = engine
+	// Serve index page.
+	engine.GET("/", func(c *gin.Context) {
+		data, err := fs.ReadFile(staticFS, "index.html")
+		if err != nil {
+			slog.Error("failed to load index.html", "error", err)
+			c.String(http.StatusInternalServerError, "failed to load index.html")
+			return
+		}
+		c.Data(http.StatusOK, "text/html; charset=utf-8", data)
+	})
 
 	s.httpSrv = &http.Server{
 		Addr:           viper.GetString("http.addr"),
@@ -191,10 +200,6 @@ func (s *Server) limitHandler(c *gin.Context) {
 	c.Next()
 }
 
-func (s *Server) indexPageHandler(c *gin.Context) {
-	c.Data(200, "text/html; charset=utf-8", []byte(indexPageHTML))
-}
-
 func (s *Server) poolStatusHandler(c *gin.Context) {
 	// If proxy is enabled, forward the request to the remote node instead of serving locally.
 	if s.proxy != nil {
@@ -211,10 +216,6 @@ func (s *Server) poolStatusHandler(c *gin.Context) {
 	}
 
 	c.JSON(200, stats)
-}
-
-func (s *Server) userPageHandler(c *gin.Context) {
-	c.Data(200, "text/html; charset=utf-8", []byte(userPageHTML))
 }
 
 func (s *Server) userHandler(c *gin.Context) {
