@@ -22,7 +22,7 @@ RUN ./autogen.sh && \
   make && \
   make install
 
-FROM gcr.io/distroless/base-debian12:nonroot
+FROM gcr.io/distroless/cc-debian12:nonroot
 
 # Copy ckpool binary from build stage
 COPY --from=build /opt/ckpool/src/ckpool /usr/local/bin/ckpool
