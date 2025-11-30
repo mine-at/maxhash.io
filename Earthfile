@@ -50,7 +50,7 @@ fix-license-headers:
     LOCALLY
     RUN reuse annotate --copyright="maxhash.io <dev@maxhash.io>" --license="AGPL-3.0-only" --fallback-dot-license --skip-existing --recursive
 
-gen-static:
+minify-static:
     FROM rust:latest
     ENV PATH=/root/.cargo/bin:$PATH
     RUN cargo install minhtml
@@ -59,7 +59,18 @@ gen-static:
     SAVE ARTIFACT --force http/*.html AS LOCAL http/static/
     SAVE ARTIFACT --force http/*.css AS LOCAL http/static/
 
+fetch-pico-css:
+    FROM alpine:latest
+    RUN apk add --no-cache curl unzip
+    RUN mkdir -p /tmp/pico && curl -sSL https://github.com/picocss/pico/archive/refs/heads/main.zip -o /tmp/pico/pico.zip
+    RUN unzip -o /tmp/pico/pico.zip -d /tmp/pico/
+    SAVE ARTIFACT /tmp/pico/pico-main/css/pico.min.css AS LOCAL http/static/pico.min.css
+
 build:
+    WAIT
+        BUILD +minify-static
+        BUILD +fetch-pico-css
+    END
     COPY . .
     ENV GOOS=linux
     ENV GOARCH=amd64
