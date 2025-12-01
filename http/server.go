@@ -50,7 +50,7 @@ func NewServer(statsSvc maxhash.StatsService) (*Server, error) {
 	if viper.GetBool("http.rate_limiter.enabled") {
 		rps, burst := viper.GetFloat64("http.rate_limiter.rps"), viper.GetInt("http.rate_limiter.burst")
 		if rps <= 0 || burst <= 0 {
-			return nil, errors.New("http.rate_limiter.rps and http.rate_limiter.burst must be greater than 0 when rate limiter is enabled")
+			return nil, errors.New("http.rate_limiter.rps and http.rate_limiter.burst must be greater than 0")
 		}
 
 		svr.limiter = rate.NewLimiter(rate.Limit(rps), burst)
@@ -104,7 +104,7 @@ func NewServer(statsSvc maxhash.StatsService) (*Server, error) {
 }
 
 // ListenAndServe will listen and serve on the server address. Blocks until the server is stopped.
-func (s *Server) ListenAndServe() error {
+func (s *Server) ListenAndServe() error { //nolint: funlen
 	gin.SetMode(gin.ReleaseMode)
 
 	// Enable debug mode if log_level is set to debug.
@@ -176,13 +176,17 @@ func (s *Server) ListenAndServe() error {
 		MaxHeaderBytes: http.DefaultMaxHeaderBytes,
 	}
 
-	listener, err := net.Listen("tcp", s.httpSrv.Addr)
+	listener, err := net.Listen("tcp", s.httpSrv.Addr) //nolint: noctx
 	if err != nil {
 		return fmt.Errorf("listen on %s: %w", s.httpSrv.Addr, err)
 	}
 	defer listener.Close()
 
-	return s.httpSrv.Serve(listener)
+	if err := s.httpSrv.Serve(listener); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		return fmt.Errorf("http server error: %w", err)
+	}
+
+	return nil
 }
 
 // GracefulShutdown will gracefully shutdown the server.

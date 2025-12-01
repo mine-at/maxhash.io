@@ -71,7 +71,7 @@ func main() {
 		shutdownCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 		defer cancel()
 
-		return svr.GracefulShutdown(shutdownCtx) //nolint: noctx, contextcheck
+		return svr.GracefulShutdown(shutdownCtx) //nolint: contextcheck
 	})
 
 	slog.Info("HTTP server listening", "addr", viper.GetString("http.addr"))

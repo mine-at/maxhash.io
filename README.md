@@ -6,7 +6,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 # maxhash.io | High Performance Bitcoin Solo Mining Pool
 
-[![Test](https://github.com/mine-at/maxhash.io/actions/workflows/test.yml/badge.svg)](https://github.com/mine-at/maxhash.io/actions/workflows/test.yml)
+[![Tests](https://github.com/mine-at/maxhash.io/actions/workflows/tests.yml/badge.svg)](https://github.com/mine-at/maxhash.io/actions/workflows/tests.yml)
 
 [maxhash.io](https://maxhash.io) is a high performance, open source Bitcoin solo mining pool focused on speed, reliability, privacy, and transparency. This repository contains all core components, services, and documentation for running and contributing to the maxhash.io mining pool.
 
