@@ -44,11 +44,12 @@ lint-dockerfile:
 lint-license-headers:
     FROM fsfe/reuse
     COPY . .
+    RUN rm -rf http/static # HACK: Exclude generated files from linting.
     RUN reuse lint
 
 fix-license-headers:
     LOCALLY
-    RUN reuse annotate --copyright="maxhash.io <dev@maxhash.io>" --license="AGPL-3.0-only" --fallback-dot-license --skip-existing --recursive
+    RUN reuse annotate --copyright="maxhash.io <dev@maxhash.io>" --license="AGPL-3.0-only" --fallback-dot-license --skip-existing --recursive .
 
 minify-static:
     FROM rust:latest

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 maxhash.io <dev@maxhash.io>
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+
 version: 2
 updates:
   - package-ecosystem: "github-actions"
