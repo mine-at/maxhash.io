@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: 2025 maxhash.io <dev@maxhash.io>
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+
+ckpool:
+  log_dir: /var/log/ckpool
+
+http:
+  addr: "[::]:8081"
+
+  # Enable rate limiting for incoming requests.
+  rate_limiter:
+    enabled: false
+    rps: 5.0 # Requests per second
+    burst: 10 # Maximum burst size
+
+  # Enable HTTP caching for all API responses.
+  cache:
+    enabled: false
+    ttl: 1m
+
+  # Enable reverse proxy to another host.
+  proxy:
+    enabled: false
+    target_host_url: http://example.com
+
+log_level: info
