@@ -35,7 +35,7 @@ func main() {
 	pflag.Parse()
 
 	if err := initConfig(); err != nil {
-		slog.Error("initConfig failed", "err", err)
+		slog.Error("Error initializing config", "err", err)
 		code = 1
 		return
 	}
@@ -44,14 +44,14 @@ func main() {
 
 	statsSvc, err := os.NewStatsService()
 	if err != nil {
-		slog.Error("failed to create stats service", "err", err)
+		slog.Error("Error creating stats service", "err", err)
 		code = 1
 		return
 	}
 
 	svr, err := http.NewServer(statsSvc)
 	if err != nil {
-		slog.Error("failed to create server", "err", err)
+		slog.Error("Error creating server", "err", err)
 		code = 1
 		return
 	}
@@ -136,7 +136,7 @@ func setupLogger() {
 			logLevel = slog.LevelDebug
 		case "INFO", "info":
 			logLevel = slog.LevelInfo
-		case "WARN", "warn", "WARNING", "warning":
+		case "WARNING", "warning":
 			logLevel = slog.LevelWarn
 		case "ERROR", "error":
 			logLevel = slog.LevelError

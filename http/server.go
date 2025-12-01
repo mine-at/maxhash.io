@@ -33,26 +33,27 @@ var staticFiles embed.FS
 
 // Server wraps http.Server.
 type Server struct {
-	StatsSvc maxhash.StatsService
-
-	httpSrv *http.Server
-	limiter *rate.Limiter
-	store   persistence.CacheStore
-	proxy   *httputil.ReverseProxy
+	statsSvc maxhash.StatsService
+	limiter  *rate.Limiter
+	store    persistence.CacheStore
+	proxy    *httputil.ReverseProxy
+	httpSrv  *http.Server
 }
 
 // NewServer constructs a new Server with the given StatsService and optional listener.
 func NewServer(statsSvc maxhash.StatsService) (*Server, error) {
 	svr := &Server{
-		StatsSvc: statsSvc,
+		statsSvc: statsSvc,
 	}
 
 	// Setup rate limiter if enabled.
 	if viper.GetBool("http.rate_limiter.enabled") {
-		svr.limiter = rate.NewLimiter(
-			rate.Limit(viper.GetFloat64("http.rate_limiter.rps")),
-			viper.GetInt("http.rate_limiter.burst"),
-		)
+		rps, burst := viper.GetFloat64("http.rate_limiter.rps"), viper.GetInt("http.rate_limiter.burst")
+		if rps <= 0 || burst <= 0 {
+			return nil, errors.New("http.rate_limiter.rps and http.rate_limiter.burst must be greater than 0 when rate limiter is enabled")
+		}
+
+		svr.limiter = rate.NewLimiter(rate.Limit(rps), burst)
 
 		slog.Debug("Rate limiter enabled ⏱️")
 	}
@@ -89,7 +90,7 @@ func NewServer(statsSvc maxhash.StatsService) (*Server, error) {
 			ExpectContinueTimeout: 0,
 			DialContext: (&net.Dialer{
 				Timeout:   5 * time.Second,
-				KeepAlive: 30 * time.Second,
+				KeepAlive: 15 * time.Second,
 			}).DialContext,
 		}
 
@@ -124,18 +125,17 @@ func (s *Server) ListenAndServe() error {
 
 	// API group.
 	api := engine.Group("/v1")
-	{
-		// Use cache if store is configured.
-		if s.store != nil {
-			// Wrap each handler directly with CachePageAtomic.
-			api.GET("/pool", cache.CachePageAtomic(s.store, viper.GetDuration("http.cache.ttl"), s.poolStatusHandler))
-			api.GET("/users/:username", cache.CachePageAtomic(s.store, viper.GetDuration("http.cache.ttl"), s.userHandler))
 
-			slog.Debug("Site-wide caching enabled for API responses 🗄️")
-		} else {
-			api.GET("/pool", s.poolStatusHandler)
-			api.GET("/users/:username", s.userHandler)
-		}
+	// Use cache if store is configured.
+	if s.store != nil {
+		// Wrap each handler directly with CachePageAtomic.
+		api.GET("/pool", cache.CachePageAtomic(s.store, viper.GetDuration("http.cache.ttl"), s.poolStatusHandler))
+		api.GET("/users/:username", cache.CachePageAtomic(s.store, viper.GetDuration("http.cache.ttl"), s.userHandler))
+
+		slog.Debug("Site-wide caching enabled for API responses 🗄️")
+	} else {
+		api.GET("/pool", s.poolStatusHandler)
+		api.GET("/users/:username", s.userHandler)
 	}
 
 	// Serve static files under /static to avoid route conflicts.
@@ -147,26 +147,24 @@ func (s *Server) ListenAndServe() error {
 	// Serve other static assets.
 	engine.StaticFS("/static", http.FS(staticFS))
 
+	userHTMLContent, err := fs.ReadFile(staticFS, "user.html")
+	if err != nil {
+		return fmt.Errorf("load user.html: %w", err)
+	}
+
+	indexHTMLContent, err := fs.ReadFile(staticFS, "index.html")
+	if err != nil {
+		return fmt.Errorf("load index.html: %w", err)
+	}
+
 	// Serve user page.
 	engine.GET("/users/:username", func(c *gin.Context) {
-		data, err := fs.ReadFile(staticFS, "user.html")
-		if err != nil {
-			slog.Error("failed to load user.html", "error", err)
-			c.String(http.StatusInternalServerError, "failed to load user.html")
-			return
-		}
-		c.Data(http.StatusOK, "text/html; charset=utf-8", data)
+		c.Data(http.StatusOK, "text/html; charset=utf-8", userHTMLContent)
 	})
 
 	// Serve index page.
 	engine.GET("/", func(c *gin.Context) {
-		data, err := fs.ReadFile(staticFS, "index.html")
-		if err != nil {
-			slog.Error("failed to load index.html", "error", err)
-			c.String(http.StatusInternalServerError, "failed to load index.html")
-			return
-		}
-		c.Data(http.StatusOK, "text/html; charset=utf-8", data)
+		c.Data(http.StatusOK, "text/html; charset=utf-8", indexHTMLContent)
 	})
 
 	s.httpSrv = &http.Server{
@@ -178,7 +176,13 @@ func (s *Server) ListenAndServe() error {
 		MaxHeaderBytes: http.DefaultMaxHeaderBytes,
 	}
 
-	return s.httpSrv.ListenAndServe()
+	listener, err := net.Listen("tcp", s.httpSrv.Addr)
+	if err != nil {
+		return fmt.Errorf("listen on %s: %w", s.httpSrv.Addr, err)
+	}
+	defer listener.Close()
+
+	return s.httpSrv.Serve(listener)
 }
 
 // GracefulShutdown will gracefully shutdown the server.
@@ -208,7 +212,7 @@ func (s *Server) poolStatusHandler(c *gin.Context) {
 	}
 
 	// Get pool stats from the local StatsService.
-	stats, err := s.StatsSvc.PoolStats()
+	stats, err := s.statsSvc.PoolStats()
 	if err != nil {
 		slog.Error("Error getting pool stats", "error", err)
 		c.String(500, "failed to get pool stats")
@@ -232,7 +236,7 @@ func (s *Server) userHandler(c *gin.Context) {
 	}
 
 	// Get user stats from the local StatsService.
-	userStats, err := s.StatsSvc.UserStats(username)
+	userStats, err := s.statsSvc.UserStats(username)
 	if err != nil {
 		slog.Error("Error getting user stats", "error", err)
 		c.String(500, "failed to get user stats")
