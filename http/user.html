@@ -50,8 +50,8 @@ SPDX-License-Identifier: AGPL-3.0-only
       <section>
         <h2>Summary</h2>
 
-        <div class="overflow-auto" style="margin-top: 0.5em; margin-bottom: 1em">
-          <span style="font-weight: bold; font-size: x-large"><code id="username"></code></span>
+        <div class="overflow-auto" style="margin-top: 2em; margin-bottom: 1em">
+          <span style="font-weight: bold; font-size: x-large">User <code id="username"></code></span>
         </div>
 
         <div id="user-stats">
@@ -71,7 +71,7 @@ SPDX-License-Identifier: AGPL-3.0-only
       <p>&copy; 2025 maxhash.io. All rights reserved.</p>
     </footer>
 
-    <script>
+    <script defer>
       // Extract username from URL
       const pathParts = window.location.pathname.split("/");
       const username = decodeURIComponent(pathParts[pathParts.length - 1]);
@@ -81,25 +81,29 @@ SPDX-License-Identifier: AGPL-3.0-only
       (async () => {
         try {
           const resp = await fetch(`/v1/users/${encodeURIComponent(username)}`);
+          if (resp.status === 400 || resp.status === 404) {
+            document.getElementById("user-stats").innerHTML = "<em>User not found.</em>";
+            document.getElementById("worker-table").innerHTML = "<em>User not found.</em>";
+            return;
+          }
           if (!resp.ok) throw new Error("Failed to fetch user stats");
+
           const stats = await resp.json();
 
           // User stats
           document.getElementById("user-stats").innerHTML = `
-            <div class="grid">
-              <div><strong>Hashrate (1m)</strong><br>${stats.hashrate1m}</div>
-              <div><strong>Hashrate (5m)</strong><br>${stats.hashrate5m}</div>
-              <div><strong>Hashrate (1hr)</strong><br>${stats.hashrate1hr}</div>
-              <div><strong>Hashrate (1d)</strong><br>${stats.hashrate1d}</div>
-              <div><strong>Hashrate (7d)</strong><br>${stats.hashrate7d}</div>
-            </div>
-
-            <div class="grid">
-              <div><strong>Shares</strong><br>${stats.shares}</div>
-              <div><strong>Best Share</strong><br>${stats.bestshare?.toFixed(8)}</div>
-              <div><strong>Best Ever</strong><br>${stats.bestever}</div>
-              <div><strong>Last Share</strong><br>${stats.lastshare}</div>
-              <div><strong>Authorised</strong><br>${stats.authorised}</div>
+            <div class="grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="grid-item"><strong>Hashrate (1m)</strong><br>${stats.hashrate1m}</div>
+                <div class="grid-item"><strong>Hashrate (5m)</strong><br>${stats.hashrate5m}</div>
+                <div class="grid-item"><strong>Hashrate (1hr)</strong><br>${stats.hashrate1hr}</div>
+                <div class="grid-item"><strong>Hashrate (1d)</strong><br>${stats.hashrate1d}</div>
+                <div class="grid-item"><strong>Hashrate (7d)</strong><br>${stats.hashrate7d}</div>
+                <div class="grid-item"><strong>Shares</strong><br>${stats.shares}</div>
+                <div class="grid-item"><strong>Best Share</strong><br>${stats.bestshare?.toFixed(8)}</div>
+                <div class="grid-item"><strong>Best Ever</strong><br>${stats.bestever}</div>
+                <div class="grid-item"><strong>Last Share</strong><br>${new Date(
+                  stats.lastshare * 1000
+                ).toLocaleString()}</div>
             </div>
             `;
 
@@ -133,7 +137,7 @@ SPDX-License-Identifier: AGPL-3.0-only
                       <td>${w.hashrate7d}</td>
                       <td>${w.shares}</td>
                       <td>${w.bestever}</td>
-                      <td>${w.lastshare}</td>
+                      <td>${new Date(w.lastshare * 1000).toLocaleString()}</td>
                     </tr>
                   `
                     )
