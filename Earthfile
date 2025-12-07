@@ -69,7 +69,6 @@ fetch-pico-css:
 
 build:
     WAIT
-        BUILD +clean
         BUILD +minify-static
         BUILD +fetch-pico-css
     END
@@ -77,11 +76,13 @@ build:
     ENV GOOS=linux
     ENV GOARCH=amd64
     ENV CGO_ENABLED=0
+    RUN rm -f build/dashboard # Ensure old binary is removed
     RUN go build -a -ldflags '-s -w -extldflags "-static"' -o build/dashboard ./cmd/dashboard/main.go
     SAVE ARTIFACT --force build/dashboard AS LOCAL build/dashboard
 
 deploy-dashboard-fly:
     WAIT
+        BUILD +clean
         BUILD +build
     END
     LOCALLY
