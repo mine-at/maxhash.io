@@ -56,7 +56,7 @@ minify-static:
     ENV PATH=/root/.cargo/bin:$PATH
     RUN cargo install minhtml
     COPY http/ http/
-    RUN minhtml --minify-css --minify-js http/*.html http/*.css
+    RUN minhtml --keep-comments=false --minify-css --minify-js http/*.html http/*.css
     SAVE ARTIFACT --force http/*.html AS LOCAL http/static/
     SAVE ARTIFACT --force http/*.css AS LOCAL http/static/
 
@@ -69,6 +69,7 @@ fetch-pico-css:
 
 build:
     WAIT
+        BUILD +clean
         BUILD +minify-static
         BUILD +fetch-pico-css
     END
@@ -84,8 +85,8 @@ deploy-dashboard-fly:
         BUILD +build
     END
     LOCALLY
-    RUN fly deploy --config infra/dashboard.fly.toml
+    RUN fly deploy --no-cache --local-only --config infra/dashboard.fly.toml
 
 deploy-ckpassthrough-fly:
     LOCALLY
-    RUN fly deploy --config infra/ckpassthrough.fly.toml
+    RUN fly deploy--config infra/ckpassthrough.fly.toml

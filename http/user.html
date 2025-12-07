@@ -71,6 +71,7 @@ SPDX-License-Identifier: AGPL-3.0-only
       <p>&copy; 2025 maxhash.io. All rights reserved.</p>
     </footer>
 
+    <script src="/static/utils.js" defer></script>
     <script defer>
       // Extract username from URL
       const pathParts = window.location.pathname.split("/");
@@ -100,7 +101,7 @@ SPDX-License-Identifier: AGPL-3.0-only
                 <div class="grid-item"><strong>Hashrate (7d)</strong><br>${stats.hashrate7d}</div>
                 <div class="grid-item"><strong>Shares</strong><br>${stats.shares}</div>
                 <div class="grid-item"><strong>Best Share</strong><br>${stats.bestshare?.toFixed(8)}</div>
-                <div class="grid-item"><strong>Best Ever</strong><br>${stats.bestever}</div>
+                <div class="grid-item"><strong>Best Ever</strong><br>${formatBitcoinDifficulty(stats.bestever)}</div>
                 <div class="grid-item"><strong>Last Share</strong><br>${new Date(
                   stats.lastshare * 1000
                 ).toLocaleString()}</div>
@@ -136,7 +137,7 @@ SPDX-License-Identifier: AGPL-3.0-only
                       <td>${w.hashrate1d}</td>
                       <td>${w.hashrate7d}</td>
                       <td>${w.shares}</td>
-                      <td>${w.bestever}</td>
+                      <td>${formatBitcoinDifficulty(w.bestever)}</td>
                       <td>${new Date(w.lastshare * 1000).toLocaleString()}</td>
                     </tr>
                   `

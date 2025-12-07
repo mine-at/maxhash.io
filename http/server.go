@@ -119,10 +119,6 @@ func (s *Server) ListenAndServe() error { //nolint: funlen
 		engine.Use(s.limitHandler)
 	}
 
-	// Use gzip compression.
-	// TODO: Make compression level configurable via viper.
-	engine.Use(gzip.Gzip(gzip.DefaultCompression))
-
 	// API group.
 	api := engine.Group("/v1")
 
@@ -143,6 +139,10 @@ func (s *Server) ListenAndServe() error { //nolint: funlen
 	if err != nil {
 		return fmt.Errorf("strip static prefix: %w", err)
 	}
+
+	// Use gzip compression for static assets.
+	// TODO: Make compression level configurable via viper.
+	engine.Use(gzip.Gzip(gzip.DefaultCompression))
 
 	// Serve other static assets.
 	engine.StaticFS("/static", http.FS(staticFS))

@@ -12,11 +12,11 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 ## Features
 
-- ⚡ **Fast:** Low latency servers, rapid block propagation, and optimized mining infrastructure.
-- 🪨 **Reliable:** Designed for high uptime with multi-region deployment and automatic failover.
-- 👻 **Private:** No registration required; minimal data retention.
-- 🌐 **Transparent:** 100% open source under the GNU AGPL v3 license.
-- 💚 **Supports Open Source:** A portion of pool fees funds upstream and related open source projects.
+- **Fast:** Low latency servers connected to hundreds of Bitcoin nodes
+- **Reliable:** High availability with multi-region deployment and automatic failover
+- **Private:** Fully anonymous mining and no KYC
+- **Transparent:** 100% open source under the GNU AGPL v3 license
+- **Support Open Source:** Pool fee funds open source projects
 
 ## Configuration
 

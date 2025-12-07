@@ -64,21 +64,11 @@ SPDX-License-Identifier: AGPL-3.0-only
       <section>
         <h2>Why maxhash.io?</h2>
         <ul>
-          <li>
-            <strong>⚡ Fast:</strong> Low latency servers, rapid block propagation, and optimized mining infrastructure.
-          </li>
-          <li>
-            <strong>🪨 Reliable:</strong> Designed for high uptime with multi-region deployment and automatic failover.
-          </li>
-          <li><strong>👻 Private:</strong> No registration required; minimal data retention.</li>
-          <li>
-            <strong>🌐 Transparent:</strong> 100% <a href="https://github.com/mine-at/maxhash.io">open source</a> under
-            the GNU AGPL v3 license.
-          </li>
-          <li>
-            <strong>💚 Supports Open Source:</strong> A portion of pool fees funds upstream and related open source
-            projects.
-          </li>
+          <li><strong>Fast:</strong> Low latency servers connected to hundreds of Bitcoin nodes</li>
+          <li><strong>Reliable:</strong> High availability with multi-region deployment and automatic failover</li>
+          <li><strong>Private:</strong> Fully anonymous mining and no KYC</li>
+          <li><strong>Transparent:</strong> 100% <a href="https://github.com/mine-at/maxhash.io">open source</a></li>
+          <li><strong>Support Open Source:</strong> Pool fee funds open source projects</li>
         </ul>
       </section>
 
@@ -158,7 +148,7 @@ SPDX-License-Identifier: AGPL-3.0-only
             </p>
 
             <ul>
-              <li>1.5% - Hosting, Development, Open Source Initiatives</li>
+              <li>1.5% - Hosting, Development, Open Source</li>
               <li>0.5% - ckpool Development Team</li>
             </ul>
 
@@ -182,7 +172,18 @@ SPDX-License-Identifier: AGPL-3.0-only
         <details name="faq">
           <summary>What regions do you support?</summary>
           <div>
-            <p>We currently support the North America region. More regions coming soon.</p>
+            <p>
+              We use geo-routing to connect miners to the nearest server. Your miner will automatically connect to the
+              server with the lowest latency.
+            </p>
+
+            <p>Currently deployed regions:</p>
+            <ul>
+              <li>Dallas, Texas, USA</li>
+              <li>Edison, New Jersey, USA</li>
+            </ul>
+
+            <p>More regions coming soon!</p>
           </div>
         </details>
 
@@ -233,6 +234,7 @@ SPDX-License-Identifier: AGPL-3.0-only
     </footer>
 
     <!-- Custom scripts -->
+    <script src="/static/utils.js" defer></script>
     <script defer>
       // Fetch and display pool statistics.
       (async () => {
@@ -256,8 +258,8 @@ SPDX-License-Identifier: AGPL-3.0-only
             <tr><th>Hashrate (7d)</th><td>${stats.hashrate7d}</td></tr>
             <tr><th>Accepted Shares</th><td>${stats.accepted}</td></tr>
             <tr><th>Rejected Shares</th><td>${stats.rejected}</td></tr>
-            <tr><th>Best Share</th><td>${stats.bestshare}</td></tr>
-            <tr><th>Difficulty</th><td>${stats.diff}</td></tr>
+            <tr><th>Best Share</th><td>${formatBitcoinDifficulty(stats.bestshare)}</td></tr>
+            <tr><th>Difficulty</th><td>${formatBitcoinDifficulty(stats.diff)}</td></tr>
             <tr><th>SPS (1m)</th><td>${stats.sps1m}</td></tr>
             <tr><th>SPS (5m)</th><td>${stats.sps5m}</td></tr>
             <tr><th>SPS (15m)</th><td>${stats.sps15m}</td></tr>
@@ -266,7 +268,8 @@ SPDX-License-Identifier: AGPL-3.0-only
           </tbody>
         </table>
           `;
-        } catch {
+        } catch (error) {
+          console.error(`Failed to load pool statistics: `, error);
           document.getElementById("pool-stats").innerHTML = "<em>Failed to load pool statistics.</em>";
         }
       })();
