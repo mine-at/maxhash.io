@@ -21,7 +21,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           version: v0.8.13
           use-cache: true
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - run: earthly --ci --github-annotations +lint-license-headers
 
   lint-go:
@@ -34,7 +34,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           version: v0.8.13
           use-cache: true
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - run: earthly --ci --github-annotations +lint-go
 
   build:
@@ -47,6 +47,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           version: v0.8.13
           use-cache: true
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - run: earthly --ci --github-annotations --strict=false +build
 
